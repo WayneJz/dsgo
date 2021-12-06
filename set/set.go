@@ -5,10 +5,10 @@ import (
 	"strings"
 )
 
-// Set 集合
+// Set 简单集合 建议使用 NewSet 或 CreateSet 方法创建集合, 该结构非线程安全
 type Set map[interface{}]struct{}
 
-// NewSet 新建一个集合
+// NewSet 新建一个空集合
 func NewSet() *Set {
 	s := Set(make(map[interface{}]struct{}))
 	return &s
@@ -78,26 +78,20 @@ func (s *Set) Union(set *Set) *Set {
 // Intersection 求集合s与集合set的交集
 func (s *Set) Intersection(set *Set) *Set {
 	res := s.DeepCopy()
-	removes := []interface{}{}
-	for k := range *set {
-		if !res.Contains(k) {
-			removes = append(removes, k)
+	for k := range *res {
+		if _, ok := (*set)[k]; !ok {
+			delete(*res, k)
 		}
 	}
-	res.Remove(removes...)
 	return res
 }
 
 // Difference 求集合s与集合set的差集 ({x∣x∈s,且x∉set})
 func (s *Set) Difference(set *Set) *Set {
 	res := s.DeepCopy()
-	removes := []interface{}{}
 	for k := range *set {
-		if res.Contains(k) {
-			removes = append(removes, k)
-		}
+		delete(*res, k)
 	}
-	res.Remove(removes...)
 	return res
 }
 
